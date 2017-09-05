@@ -5,9 +5,12 @@ const fs = require("fs");
 var LinkedList = require('singly-linked-list');
 
 var list = new LinkedList(); 
+
 var listID =  new LinkedList();
+var listIdentity = new LinkedList();
 var listStatus = new LinkedList();
 var listCrosses = new LinkedList();
+var listScythes = new LinkedList();
 var listProposals = new LinkedList();
 var listContacted = new LinkedList();
 var x;
@@ -63,13 +66,15 @@ client.on('message', msg => {
           msg.channel.send('The game has not started!');
       }else{
             var index = list.indexOf(msg.author.toString());
+            var identity = listIdentity.findAt(index).getData();
             var stat= listStatus.findAt(index).getData();
             var numCross = listCrosses.findAt(index).getData();
-
-            if(stat=="angel"){
-                msg.author.send("You are an angel. You have "+numCross+" crosses.");
+            var numScythe = listScythes.findAt(index).getData();
+          
+            if(identity=="angel"){
+                msg.author.send("You are an angel. You are converted as a "+ stat +". You have "+numCross+" crosses and "+numScythe+" scythes.");
             }else{
-                msg.author.send("You are a demon. You have "+numCross+" crosses.");
+                msg.author.send("You are a demon. You are converted as a "+ stat +" .You have "+numCross+" crosses and "+numScythe+" scythes.");
             }
       }
   }  
@@ -86,7 +91,25 @@ client.on('message', msg => {
           }else{
               listCrosses.findAt(indexSelf).editData(i-1);
               listStatus.findAt(indexSelf).editData("angel");
-              msg.author.send("You have"+ listCrosses.findAt(indexSelf).getData() +"crosses left. Ascension success!");
+              msg.author.send("You have "+ listCrosses.findAt(indexSelf).getData() +" crosses left. Ascension success!");
+          }
+      }
+  }  
+    
+  if (msg.content === config.prefix  + '!' + 'descend') {
+      if(alreadyPressPlay==false){
+          msg.channel.send('The game has not started!');
+      }else{
+          var self = msg.author.toString();
+          var indexSelf=list.indexOf(self);
+          var i= listScythes.findAt(indexSelf).getData();
+          
+          if (i==0){
+              msg.author.send("You have no scythes to demonize youself with. Descension failed!");
+          }else{
+              listScythes.findAt(indexSelf).editData(i-1);
+              listStatus.findAt(indexSelf).editData("demon");
+              msg.author.send("You have "+ listScythes.findAt(indexSelf).getData() +" scythes left. Descension success!");
           }
       }
   }  
@@ -130,7 +153,10 @@ client.on('message', msg => {
             var j= listCrosses.findAt(indexTarget).getData();
             listCrosses.findAt(indexTarget).editData(+j+ +1);
         }else if((listStatus.findAt(indexAuthor).getData()==="demon")&&(listStatus.findAt(indexTarget).getData()==="demon")){ //if both are demons
-           //do nothing
+            var i= listScythes.findAt(indexAuthor).getData();
+            listScythes.findAt(indexAuthor).editData(+i+ +1);
+            var j= listScythes.findAt(indexTarget).getData();
+            listScythes.findAt(indexTarget).editData(+j+ +1);
             
         }else if((listStatus.findAt(indexAuthor).getData()==="angel")&& (listStatus.findAt(indexTarget).getData()==="demon")){ //if author is angel
              var i= listCrosses.findAt(indexAuthor).getData();        
@@ -140,6 +166,7 @@ client.on('message', msg => {
                 listStatus.findAt(indexAuthor).editData("demon");
             }else if(i>=1){
                 listStatus.findAt(indexAuthor).editData("demon");
+                console.log(listCrosses.findAt(indexAuthor).editData(+i-1));
                 listCrosses.findAt(indexAuthor).editData(i-1);
                 listStatus.findAt(indexTarget).editData("angel");
             }
@@ -151,7 +178,7 @@ client.on('message', msg => {
                 listStatus.findAt(indexTarget).editData("demon");
             }else if(j>=1){
                 listStatus.findAt(indexTarget).editData("demon");
-                listCrosses.findAt(indexTarget).editData(i-1);
+                listCrosses.findAt(indexTarget).editData(+i-1);
                 listStatus.findAt(indexAuthor).editData("angel");
             }
         }
@@ -159,7 +186,7 @@ client.on('message', msg => {
          addtoContacted(author,target);
          
      }else{
-         msg.author.send("You do not have permission for this command.");
+         msg.channel.send("You do not have permission for this command.");
      }
   }
     
@@ -167,7 +194,7 @@ client.on('message', msg => {
 
 
 function explainRules(msg){
-    msg.channel.send('__**How to play the game:**__\nThe game takes 10 minutes. Two players are chosen as demons in the beginning of the game, while the rest are angels. Each player can examine their status by pressing `l!status` throughout the game. When two angels contact, they will each receive a cross. However, contacting the same person twice will not produce another cross. If two demons contact, nothing happens. If an angel contacts a demon, the angel will become a demon. If the demon contacts a cross holder, he will become an angel, while the other player loses one cross. A demon who owns a cross can activate it to become an angel, but he will lose a cross. The objective of the game is to get more than 4 crosses.');
+    msg.channel.send('__**How to play the game:**__\nThe game takes 10 minutes. The players are divided into angels and demons. Each player can examine their status by pressing `l!status` throughout the game. When two angels contact, they will each receive a cross. However, contacting the same person twice will not produce another cross. If two demons contact, a scythe is formed. If an angel contacts a demon, the angel will become a demon. If the demon contacts a cross holder, he will become an angel, while the other player loses one cross. A demon who owns a cross can activate it to become an angel, but he will lose a cross. An angel can activate a scythe to become a demon. The objective of the game is to convert as many people as you can to your team.');
 }
 
 function join(msg){
@@ -188,9 +215,10 @@ function join(msg){
 		idAuthor = strAuthor.replace(/[<@!>]/g, '');
 		      
         listID.insert(idAuthor);
+        listIdentity.insert("angel");
         listStatus.insert("angel");
         listCrosses.insert('0');
-		
+		listScythes.insert('0');
 	}
 	client.channels.get('348485259030953984').send('Players: ' + list.printList());
 	
@@ -207,19 +235,36 @@ function checkEnoughPeople(msg){
 		
 }	
 function assignRoles(){
-
-	x = Math.floor(Math.random() * list.getSize()) ;
-    listStatus.findAt(x).editData("demon");
-
-	y = Math.floor(Math.random() * list.getSize()) ;
-	
-	while(x==y){
-		y = Math.floor(Math.random() * list.getSize()) ;
-	}
-	if (x!=y){
-		listStatus.findAt(y).editData("demon");
-
-	}
+    var num = list.getSize();
+    var players = new Array(num);
+    
+    for (var i = 0; i < num; i++) {
+        players[i] = "-1";
+    }
+    
+    x = Math.floor(Math.random() * list.getSize()) ;
+    players[x] = list.findAt(0).getData();
+    for (var i = 1; i < num; i++) {
+        x = Math.floor(Math.random() * list.getSize()) ;
+        while(!(players[x]==="-1")){
+            x = Math.floor(Math.random() * list.getSize()) ;
+        }
+        players[x] = list.findAt(i).getData();
+    }
+    
+    
+    for (var i = 0; i < num; i++) {
+        if(i%2==0){ //angel
+            var index = list.indexOf(players[i]);
+            listIdentity.findAt(index).editData("angel");
+            listStatus.findAt(index).editData("angel");
+        }else{
+            var index = list.indexOf(players[i]);
+            listIdentity.findAt(index).editData("demon");
+            listStatus.findAt(index).editData("demon");
+        }
+        
+    }
 
 }
 
@@ -227,7 +272,7 @@ function assignRoles(){
 function play(msg){
 	if (alreadyPressPlay==false){
 		alreadyPressPlay=true;
-		client.channels.get('348485259030953984').send('The timer counts down for 10 minutes. There are two demons, and the rest are angels. Check your status with l!status. In the meantime, pair up with someone to get crosses with l!propose @username. To ascend yourself from a demon to an angel, press l!ascend.');
+		client.channels.get('348485259030953984').send('The timer counts down for 10 minutes. There are two teams, angels and demons. Check your status with l!status. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`. ');
 
 		assignRoles();
 		
@@ -254,11 +299,25 @@ async function wait(msg) {
             var index=0;
             
             for (index = 0; index< list.getSize(); index++){
-                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses.");
+                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listIdentity.findAt(index).getData() +" converted to "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
             }
-        
-
-    	client.channels.get('348485259030953984').send('End Game');
+            
+            index=0;
+            var count=0;
+            for (index = 0; index< list.getSize(); index++){
+                if(listStatus.findAt(index).getData()==="angel"){
+                    count++;
+                }                
+            }
+            if (count==list.getSize()/2){
+                client.channels.get('348485259030953984').send("Result: angels and demons tie!");
+            }else if (count < list.getSize()/2){
+                client.channels.get('348485259030953984').send("Result: demons win!");
+                
+            }else{
+                client.channels.get('348485259030953984').send("Result: angels win!");
+            }
+                
         clear();
     }
 }
