@@ -126,10 +126,13 @@ client.on('message', msg => {
       if(alreadyPressPlay==false){
           msg.channel.send('The game has not started!');
       }else{
+     
           author = msg.author.toString();
           target = parts[1];
-          
-          if(contactedAlready(author, target)){
+          if(author===target){
+              msg.channel.send("You cannot propose to yourself. Try someone else.");
+          }
+          else if(contactedAlready(author, target)){
                 msg.channel.send("This combination has already been used. Try someone else.");
           }else{
               
