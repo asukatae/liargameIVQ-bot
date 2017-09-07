@@ -202,7 +202,7 @@ client.on('message', msg => {
             if (i==0){
                 listStatus.findAt(indexAuthor).editData("demon");
             }else if(i>=1){
-                //listStatus.findAt(indexAuthor).editData("demon");
+                listStatus.findAt(indexAuthor).editData("demon");
                 listCrosses.findAt(indexAuthor).editData(+i - +1);
                 listStatus.findAt(indexTarget).editData("angel");
             }
@@ -213,7 +213,7 @@ client.on('message', msg => {
             if (j==0){
                 listStatus.findAt(indexTarget).editData("demon");
             }else if(j>=1){
-                //listStatus.findAt(indexTarget).editData("demon");
+                listStatus.findAt(indexTarget).editData("demon");
                 listCrosses.findAt(indexTarget).editData(+j- +1); //here
                 listStatus.findAt(indexAuthor).editData("angel");
             }
@@ -385,6 +385,8 @@ function checkEnoughPeople(msg){
 function assignRoles(){
     var num = list.getSize();
     var players = new Array(num);
+    var pickDemons = Math.ceil(list.getSize()/3);
+    console.log(pickDemons);
     
     for (var i = 0; i < num; i++) {
         players[i] = "-1";
@@ -400,7 +402,12 @@ function assignRoles(){
         players[x] = list.findAt(i).getData();
     }
     
-    
+    for (var i = 0; i < pickDemons; i++) {
+            var index = list.indexOf(players[i]);
+            listIdentity.findAt(index).editData("demon");
+            listStatus.findAt(index).editData("demon");
+    }
+    /*
     for (var i = 0; i < num; i++) {
         if(i%2==0){ //angel
             var index = list.indexOf(players[i]);
@@ -412,7 +419,7 @@ function assignRoles(){
             listStatus.findAt(index).editData("demon");
         }
         
-    }
+    }*/
 
 }
 
