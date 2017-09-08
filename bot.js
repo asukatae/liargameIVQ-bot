@@ -588,6 +588,7 @@ function clear(){
 list.clear(); 
 listID.clear();
 listTag.clear();
+listIdentity.clear();
 listStatus.clear();
 listCrosses.clear();
 listProposals.clear();
