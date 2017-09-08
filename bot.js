@@ -95,7 +95,10 @@ client.on('message', msg => {
 	msg.channel.send('This is a bot created by Asuka Tae (飛鳥 妙) in August 2017! Thank you for playing!');
   }
   if (msg.content === config.prefix  + '!' + 'commands') {
-	msg.channel.send('`l!rules` `l!join` `l!play` `l!quit` `l!about`\n`l!propose @username` `l!accept @username` `l!ascend` `l!descend` \n`l!rumor This_is_a_rumor` `l!investigate @username` `l!sendCross` `l!sendScythe`');
+	msg.channel.send('`l!rules` `l!join` `l!play` `l!quit` `l!about`\n`l!propose @username` `l!accept @username` `l!ascend` `l!descend` `l!players`\n`l!rumor This_is_a_rumor` `l!investigate @username` `l!sendCross` `l!sendScythe`');
+  }
+  if (msg.content === config.prefix  + '!' + 'players') {
+	msg.channel.send("Players: " + list.printList());
   }
   if (msg.content === config.prefix  + '!' + 'status') {
       if(alreadyPressPlay==false){
@@ -108,9 +111,9 @@ client.on('message', msg => {
             var numScythe = listScythes.findAt(index).getData();
           
             if(identity=="angel"){
-                msg.author.send("You are an angel. You are converted as a "+ stat +". You have "+numCross+" crosses and "+numScythe+" scythes.");
+                msg.author.send("You are on the angel team. Your status is a "+ stat +". You have "+numCross+" crosses and "+numScythe+" scythes.");
             }else{
-                msg.author.send("You are a demon. You are converted as a "+ stat +". You have "+numCross+" crosses and "+numScythe+" scythes.");
+                msg.author.send("You are on the demon team. Your status is a "+ stat +". You have "+numCross+" crosses and "+numScythe+" scythes.");
             }
       }
   }  
@@ -202,7 +205,7 @@ client.on('message', msg => {
             if (i==0){
                 listStatus.findAt(indexAuthor).editData("demon");
             }else if(i>=1){
-                listStatus.findAt(indexAuthor).editData("demon");
+                //listStatus.findAt(indexAuthor).editData("demon");
                 listCrosses.findAt(indexAuthor).editData(+i - +1);
                 listStatus.findAt(indexTarget).editData("angel");
             }
@@ -213,7 +216,7 @@ client.on('message', msg => {
             if (j==0){
                 listStatus.findAt(indexTarget).editData("demon");
             }else if(j>=1){
-                listStatus.findAt(indexTarget).editData("demon");
+                //listStatus.findAt(indexTarget).editData("demon");
                 listCrosses.findAt(indexTarget).editData(+j- +1); //here
                 listStatus.findAt(indexAuthor).editData("angel");
             }
@@ -430,7 +433,7 @@ function assignRoles(){
 function play(msg){
 	if (alreadyPressPlay==false){
 		alreadyPressPlay=true;
-		client.channels.get('348485259030953984').send('The timer is counting down. Each round is 10 minutes. There are two teams, angels and demons. Check your status with `l!status`. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`.  Use `l!rumor This_is_a_rumor` to spread a rumor or `l!investigate @username` to investigate someone. Use `l!sendCross` or `l!sendScythe` to give away item.');
+		client.channels.get('348485259030953984').send('The timer is counting down. Each round is 10 minutes. There are two teams, angels and demons. Check your status with `l!status`. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`.  Use `l!rumor This_is_a_rumor` to spread a rumor or `l!investigate @username` to investigate someone. Use `l!sendCross` or `l!sendScythe` to give away item. Use `l!players` to see who you can pair up with.');
 
 		assignRoles();
 		
@@ -513,7 +516,7 @@ function round3(msg){
      var index=0;
             
             for (index = 0; index< list.getSize(); index++){
-                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listIdentity.findAt(index).getData() +" whose status is "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
+                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is on the ' +listIdentity.findAt(index).getData() +" team whose status is "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
             }
             
             index=0;
