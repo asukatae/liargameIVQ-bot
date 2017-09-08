@@ -58,7 +58,7 @@ client.on('message', msg => {
            var index=0;
             
             for (index = 0; index< list.getSize(); index++){
-                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listIdentity.findAt(index).getData() +" converted to "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
+                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listIdentity.findAt(index).getData() +" whose status is "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
             }
             
             index=0;
@@ -339,7 +339,7 @@ client.on('message', msg => {
 
 
 function explainRules(msg){
-    msg.channel.send('__**How to play the game:**__\nThe game has 3 rounds, each round 10 minutes. The players are divided into angels and demons. Each player can examine their status by pressing `l!status` throughout the game. When two angels contact, they will each receive a cross. However, contacting the same person twice will not produce another cross. If two demons contact, a scythe is formed. If an angel contacts a demon, the angel will become a demon. If the demon contacts a cross holder, he will become an angel, while the other player loses one cross. A demon who owns a cross can activate it to become an angel, but he will lose a cross. An angel can activate a scythe to become a demon. You can spread 1 rumor and investigate 1 person\'s status. You can send a cross or scythe to someone else. The objective of the game is to convert as many people as you can to your team. ');
+    msg.channel.send('__**How to play the game:**__\nThe game has 3 rounds, each round 10 minutes. The players are divided into angels and demons by 2:1 ratio. Each player can examine their status by pressing `l!status` throughout the game. When two angels contact, they will each receive a cross. However, contacting the same person twice will not produce another cross. If two demons contact, a scythe is formed. If an angel contacts a demon, the angel will become a demon. If the demon contacts a cross holder, he will become an angel, while the other player loses one cross. A demon who owns a cross can activate it to become an angel, but he will lose a cross. An angel can activate a scythe to become a demon. You can spread 1 rumor and investigate 1 person\'s status. You can send a cross or scythe to someone else. The objective of the game is to convert as many people as you can to your team. ');
 }
 
 function join(msg){
@@ -386,14 +386,15 @@ function assignRoles(){
     var num = list.getSize();
     var players = new Array(num);
     var pickDemons = Math.ceil(list.getSize()/3);
-    console.log(pickDemons);
-    
+        
     for (var i = 0; i < num; i++) {
         players[i] = "-1";
     }
     
     x = Math.floor(Math.random() * list.getSize()) ;
+    
     players[x] = list.findAt(0).getData();
+    
     for (var i = 1; i < num; i++) {
         x = Math.floor(Math.random() * list.getSize()) ;
         while(!(players[x]==="-1")){
@@ -402,24 +403,26 @@ function assignRoles(){
         players[x] = list.findAt(i).getData();
     }
     
-    for (var i = 0; i < pickDemons; i++) {
+    for (var i = 0; i < num; i++) {
             var index = list.indexOf(players[i]);
+        console.log("Players: " + listTag.findAt(index));
+
+    }
+    
+    for (var i = 0; i < pickDemons; i++) {
+            console.log('Enter here');
+            var index = list.indexOf(players[i]);
+            console.log(index);
+       
+            console.log("Demon: " + listTag.findAt(index));
             listIdentity.findAt(index).editData("demon");
             listStatus.findAt(index).editData("demon");
     }
-    /*
     for (var i = 0; i < num; i++) {
-        if(i%2==0){ //angel
             var index = list.indexOf(players[i]);
-            listIdentity.findAt(index).editData("angel");
-            listStatus.findAt(index).editData("angel");
-        }else{
-            var index = list.indexOf(players[i]);
-            listIdentity.findAt(index).editData("demon");
-            listStatus.findAt(index).editData("demon");
-        }
-        
-    }*/
+        console.log("Players: " + listTag.findAt(index)+ listIdentity.findAt(index)+ listStatus.findAt(index));
+
+    }
 
 }
 
@@ -427,7 +430,7 @@ function assignRoles(){
 function play(msg){
 	if (alreadyPressPlay==false){
 		alreadyPressPlay=true;
-		client.channels.get('348485259030953984').send('The timer is counting down. Each round is 10 minutes. There are two teams, angels and demons. Check your status with l!status. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`.  Use `l!rumor This_is_a_rumor` to spread a rumor or `l!investigate @username` to investigate someone. Use `l!sendCross` or `l!sendScythe` to give away item.');
+		client.channels.get('348485259030953984').send('The timer is counting down. Each round is 10 minutes. There are two teams, angels and demons. Check your status with `l!status`. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`.  Use `l!rumor This_is_a_rumor` to spread a rumor or `l!investigate @username` to investigate someone. Use `l!sendCross` or `l!sendScythe` to give away item.');
 
 		assignRoles();
 		
@@ -510,7 +513,7 @@ function round3(msg){
      var index=0;
             
             for (index = 0; index< list.getSize(); index++){
-                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listIdentity.findAt(index).getData() +" converted to "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
+                client.channels.get('348485259030953984').send( list.findAt(index).getData()+' is a ' +listIdentity.findAt(index).getData() +" whose status is "+listStatus.findAt(index).getData()+" with "+listCrosses.findAt(index).getData()+" crosses and "+listScythes.findAt(index).getData()+" scythes.");
             }
             
             index=0;
