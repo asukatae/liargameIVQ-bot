@@ -95,7 +95,7 @@ client.on('message', msg => {
 	msg.channel.send('This is a bot created by Asuka Tae (飛鳥 妙) in August 2017! Thank you for playing!');
   }
   if (msg.content === config.prefix  + '!' + 'commands') {
-	msg.channel.send('`l!rules` `l!join` `l!play` `l!quit` `l!about`\n`l!propose @username` `l!accept @username` `l!ascend` `l!descend` `l!players`\n`l!rumor This_is_a_rumor` `l!investigate @username` `l!sendCross` `l!sendScythe`');
+	msg.channel.send('`l!rules` `l!join` `l!play` `l!quit` `l!about`\n`l!propose @username` `l!accept @username` `l!ascend` `l!descend` `l!players`\n`l!rumor This_is_a_rumor` `l!investigate` `l!sendCross` `l!sendScythe`');
   }
   if (msg.content === config.prefix  + '!' + 'players') {
 	msg.channel.send("Players: " + list.printList());
@@ -236,16 +236,16 @@ client.on('message', msg => {
           if (parts[1]==null){
               msg.channel.send('Your message is empty! Try l!rumor again!');
           }else{
-              var self = msg.author.toString();
-              var indexSelf=list.indexOf(self);
+              //var self = msg.author.toString();
+              //var indexSelf=list.indexOf(self);
           
-              if(listRumor.findAt(indexSelf).getData()==='0'){
+              //if(listRumor.findAt(indexSelf).getData()==='0'){
                   msg.channel.send('You just spread a rumor! Go to channel to view your rumor.');
                   client.channels.get('348485259030953984').send("A rumor has spread! It says: "+parts[1]);
-                  listRumor.findAt(indexSelf).editData('1');
-              }else{
-                msg.channel.send('You already spread a rumor!');
-              }
+                 // listRumor.findAt(indexSelf).editData('1');
+              //}else{
+                //msg.channel.send('You already spread a rumor!');
+              //}
           }     
       }
   }
@@ -254,17 +254,28 @@ client.on('message', msg => {
           msg.channel.send('The game has not started!');
       }else{
           if (parts[1]==null){
-              msg.channel.send('You need to mention a person!');
+              var self = msg.author.toString();
+              var indexSelf=list.indexOf(self);
+              var num = listInv.findAt(indexSelf).getData();
+              if (num ==='0'){
+                  msg.channel.send('You can investigate one time!');
+                  msg.channel.send(listTag.printDMList()+'\nUse l!investigate number to investigate the status of person!');
+              }else{
+                  msg.channel.send('You already investigated once!');
+              }
           }else{
               var self = msg.author.toString();
               var indexSelf=list.indexOf(self);
           
               if(listInv.findAt(indexSelf).getData()==='0'){
-                  var index = list.indexOf(parts[1]);
-                  var stat = listStatus.findAt(index).getData();
-                  msg.author.send('You investigated '+listTag.findAt(index).getData()+'. His status is '+stat+'.');
-
+                  if (parts[1]<list.getSize()){
+                      
+                  var stat = listStatus.findAt(parts[1]).getData();
+                  msg.author.send('You investigated '+listTag.findAt(parts[1]).getData()+'. His status is '+stat+'.');
                   listInv.findAt(indexSelf).editData('1');
+                  }else{
+                       msg.channel.send("Invalid number! Please l!investigate number again.");
+                  }
               }else{
                 msg.channel.send('You already investigated once!');
               }
@@ -297,7 +308,7 @@ client.on('message', msg => {
                   msg.channel.send('You have given '+ listTag.findAt(parts[1]).getData()+' a cross!');
               
               }else{
-                msg.channel.send("Unvalid number! Please w!sendCross number again.");
+                msg.channel.send("Invalid number! Please l!sendCross number again.");
                   
               }
               
@@ -330,7 +341,7 @@ client.on('message', msg => {
                   msg.channel.send('You have given '+ listTag.findAt(parts[1]).getData()+' a scythe!');
               
               }else{
-                msg.channel.send("Unvalid number! Please w!sendScythe number again.");
+                msg.channel.send("Invalid number! Please w!sendScythe number again.");
                   
               }
               
@@ -342,7 +353,7 @@ client.on('message', msg => {
 
 
 function explainRules(msg){
-    msg.channel.send('__**How to play the game:**__\nThe game has 3 rounds, each round 10 minutes. The players are divided into angels and demons by 2:1 ratio. Each player can examine their status by pressing `l!status` throughout the game. When two angels contact, they will each receive a cross. However, contacting the same person twice will not produce another cross. If two demons contact, a scythe is formed. If an angel contacts a demon, the angel will become a demon. If the demon contacts a cross holder, he will become an angel, while the other player loses one cross. A demon who owns a cross can activate it to become an angel, but he will lose a cross. An angel can activate a scythe to become a demon. You can spread 1 rumor and investigate 1 person\'s status. You can send a cross or scythe to someone else. The objective of the game is to convert as many people as you can to your team. ');
+    msg.channel.send('__**How to play the game:**__\nThe game has 3 rounds, each round 10 minutes. The players are divided into angels and demons by 2:1 ratio. Each player can examine their status by pressing `l!status` throughout the game. When two angels contact, they will each receive a cross. However, contacting the same person twice will not produce another cross. If two demons contact, a scythe is formed. If an angel contacts a demon, the angel will become a demon. If the demon contacts a cross holder, he will become an angel, while the other player loses one cross. A demon who owns a cross can activate it to become an angel, but he will lose a cross. An angel can activate a scythe to become a demon. You can spread rumors and investigate 1 person\'s status. You can send a cross or scythe to someone else. The objective of the game is to convert as many people as you can to your team. ');
 }
 
 function join(msg){
@@ -433,7 +444,7 @@ function assignRoles(){
 function play(msg){
 	if (alreadyPressPlay==false){
 		alreadyPressPlay=true;
-		client.channels.get('348485259030953984').send('The timer is counting down. Each round is 10 minutes. There are two teams, angels and demons. Check your status with `l!status`. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`.  Use `l!rumor This_is_a_rumor` to spread a rumor or `l!investigate @username` to investigate someone. Use `l!sendCross` or `l!sendScythe` to give away item. Use `l!players` to see who you can pair up with.');
+		client.channels.get('348485259030953984').send('The timer is counting down. Each round is 10 minutes. There are two teams, angels and demons. Check your status with `l!status`. In the meantime, pair up with someone to get crosses with `l!propose @username`. To ascend yourself from a demon to an angel, press `l!ascend`. To descend yourself from an angel to a demon, press `l!descend`.  Use `l!rumor This_is_a_rumor` to spread a rumor or `l!investigate` to investigate someone. Use `l!sendCross` or `l!sendScythe` to give away item. Use `l!players` to see who you can pair up with.');
 
 		assignRoles();
 		
